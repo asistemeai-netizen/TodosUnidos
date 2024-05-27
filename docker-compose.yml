@@ -9,3 +9,4 @@ services:
       - "3010:3010"
     environment:
       - NODE_ENV=production
+    restart: unless-stopped
