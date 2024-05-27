@@ -37,7 +37,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
 
 # Expone el puerto que usa Next.js
-EXPOSE 9000
+EXPOSE 3010
 
 # Comando por defecto para ejecutar la aplicación
 CMD ["pm2-runtime", "npm", "--", "start"]
