@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^2.10.0",
     "@todosunidos/db": "workspace:*",
     "drizzle-orm": "^0.30.10",
     "minio": "^8.0.7",

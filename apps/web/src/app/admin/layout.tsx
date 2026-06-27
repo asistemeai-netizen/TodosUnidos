@@ -23,6 +23,9 @@ export default function AdminLayout({
           <Link href="/admin/acopio" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
             Centros de Acopio
           </Link>
+          <Link href="/admin/moderacion" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
+            Moderación IA
+          </Link>
           <Link href="/admin/api" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
             API & Webhooks
           </Link>
