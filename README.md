@@ -7,9 +7,11 @@ Plataforma centralizada de búsqueda y unificación de personas desaparecidas en
 - **Directorio unificado** de personas desaparecidas, localizadas y fallecidas
 - **Deduplicación automática** de registros provenientes de distintas plataformas mediante fuzzy matching
 - **Feed de noticias con IA** — resúmenes generados por Google Gemini cada hora desde fuentes venezolanas
+- **Monitoreo de YouTube con IA** — extracción automática de videos relevantes a la emergencia.
 - **Centros de acopio** — directorio de puntos de recolección y donación
 - **API pública para partners** — webhooks y endpoints REST para organizaciones aliadas
 - **Panel de administración** con métricas, revisión de duplicados y gestión de API keys
+- **Servidor MCP (Model Context Protocol)** — servidor nativo para que herramientas de IA (Claude, Cursor, etc.) interactúen con la base de datos en tiempo real.
 
 ## Stack
 
@@ -27,8 +29,9 @@ Plataforma centralizada de búsqueda y unificación de personas desaparecidas en
 ```
 todosunidos/
 ├── apps/
-│   ├── api/       # API REST + webhooks + cron de noticias
-│   └── web/       # Sitio público + panel admin
+│   ├── api/       # API REST + webhooks + crons (Noticias, YouTube, Deduplicación)
+│   ├── web/       # Sitio público + panel admin (Next.js)
+│   └── mcp/       # Servidor MCP (Protocolo de Contexto de Modelos)
 └── packages/
     └── db/        # Schema compartido (Drizzle ORM)
 ```
@@ -48,29 +51,47 @@ pnpm install
 
 ## Variables de entorno
 
-### `apps/api/.env`
+> [!NOTE]
+> Para simplificar el despliegue en producción (por ejemplo usando Dokploy / Docker Compose), la mayoría de las variables están consolidadas en el nivel raíz. Revisa el archivo `docker-compose.yml`.
+
+### Variables Globales o Raíz (Para el `docker-compose.yml` en producción)
+```env
+DATABASE_URL=
+ADMIN_PASSWORD=
+GEMINI_API_KEY=
+SEARXNG_URL=
+YOUTUBE_API_KEY=
+MINIO_ENDPOINT=
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
+```
+
+### Configuración de MinIO
+El sistema incluye configuración automática para MinIO (auto-creación de bucket). Si no especificas `MINIO_BUCKET`, utilizará un bucket llamado `todosunidos` por defecto y lo creará al subir la primera foto.
+
+---
+
+### Si prefieres desarrollo local independiente (`.env` por cada App)
+
+**`apps/api/.env`**
 ```env
 GEMINI_API_KEY=
 SEARXNG_URL=
-SEARXNG_USERNAME=
-SEARXNG_PASSWORD=
+YOUTUBE_API_KEY=
 MINIO_ENDPOINT=
 MINIO_ACCESS_KEY=
 MINIO_SECRET_KEY=
-MINIO_BUCKET=
+MINIO_BUCKET= # Opcional
 ```
 
-### `apps/web/.env.local`
+**`apps/web/.env.local`**
 ```env
 DATABASE_URL=
-MINIO_ENDPOINT=
-MINIO_ACCESS_KEY=
-MINIO_SECRET_KEY=
-MINIO_BUCKET=
 ADMIN_PASSWORD=
+NEXT_PUBLIC_API_URL= # (Opcional) En desarrollo: http://localhost:3001/api/v1
 ```
 
-### `.env` (raíz)
+**`apps/mcp/.env`**
 ```env
 DATABASE_URL=
 ```
