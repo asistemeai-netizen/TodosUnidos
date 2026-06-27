@@ -39,6 +39,7 @@ COPY --from=builder /app/packages/db/drizzle.config.ts ./packages/db/
 COPY --from=builder /app/packages/db/src ./packages/db/src
 
 COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/src ./apps/api/src
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
 
