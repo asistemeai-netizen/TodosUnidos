@@ -84,7 +84,7 @@ export default async function Home() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-100/50 to-transparent rounded-bl-full z-0 transition-transform group-hover:scale-110"></div>
                 <div className="w-full relative z-10 transition-transform duration-500 group-hover:scale-105">
                   <Image 
-                    src="/corazonv3.png" 
+                    src="/corazonv3.webp" 
                     alt="Logo Todos Unidos - Escudo" 
                     width={600} 
                     height={600} 
