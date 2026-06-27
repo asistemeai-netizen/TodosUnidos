@@ -83,6 +83,8 @@ export const personTips = pgTable('person_tips', {
   id: uuid('id').defaultRandom().primaryKey(),
   unifiedPersonId: uuid('unified_person_id').references(() => unifiedPersons.id).notNull(),
   informationText: text('information_text').notNull(),
+  status: varchar('status', { length: 50 }).default('aprobado').notNull(), // aprobado, rechazado
+  aiModerationReason: text('ai_moderation_reason'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
