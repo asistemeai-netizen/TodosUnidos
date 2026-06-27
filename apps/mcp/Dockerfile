@@ -16,9 +16,9 @@ COPY apps/mcp ./apps/mcp
 # Instalar TODO (dependencias y devDependencies) para poder compilar y transpirar TypeScript
 RUN pnpm install --frozen-lockfile=false
 
-# Compilar MCP
+# Compilar MCP (Opcional si usamos tsx)
 WORKDIR /app/apps/mcp
-RUN pnpm build
+RUN pnpm build || true
 
 # Fase de Producción
 FROM base AS runner
@@ -32,7 +32,7 @@ COPY --from=builder /app/packages/db/package.json ./packages/db/
 COPY --from=builder /app/packages/db/src ./packages/db/src
 
 COPY --from=builder /app/apps/mcp/package.json ./apps/mcp/
-COPY --from=builder /app/apps/mcp/dist ./apps/mcp/dist
+COPY --from=builder /app/apps/mcp/src ./apps/mcp/src
 COPY --from=builder /app/apps/mcp/node_modules ./apps/mcp/node_modules
 
 EXPOSE 3002
@@ -40,4 +40,4 @@ EXPOSE 3002
 ENV NODE_ENV=production
 
 WORKDIR /app/apps/mcp
-CMD ["node", "dist/index.js"]
+CMD ["npx", "tsx", "src/index.ts"]
