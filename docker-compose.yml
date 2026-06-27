@@ -23,6 +23,10 @@ services:
       context: .
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
+    # Descomentar si usas la base de datos local (bloque al final del archivo)
+    # depends_on:
+    #   postgres:
+    #     condition: service_started
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
