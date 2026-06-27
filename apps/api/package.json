@@ -16,10 +16,12 @@
     "drizzle-orm": "^0.30.0",
     "hono": "^4.4.0",
     "minio": "^8.0.7",
-    "node-cron": "^4.5.0"
+    "node-cron": "^4.5.0",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "@types/pg": "^8.11.0",
     "tsx": "^4.7.1",
     "typescript": "^5.0.0"
   }
