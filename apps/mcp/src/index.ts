@@ -160,6 +160,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 let transport: SSEServerTransport;
 
 app.get('/sse', async (req, res) => {
+  if (transport) {
+    try {
+      await server.close();
+    } catch (e) {
+      console.error('Error cerrando transporte previo:', e);
+    }
+  }
   transport = new SSEServerTransport('/messages', res);
   await server.connect(transport);
 });
