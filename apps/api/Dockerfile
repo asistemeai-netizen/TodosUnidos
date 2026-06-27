@@ -35,8 +35,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
 COPY --from=builder /app/packages/db/package.json ./packages/db/
+COPY --from=builder /app/packages/db/drizzle.config.ts ./packages/db/
 COPY --from=builder /app/packages/db/src ./packages/db/src
-# (Como db no se compila porque Nextjs y Hono lo hacen al vuelo, copiamos el src. Si es necesario, lo transpilamos, pero en Hono tsx o dist lo requiere)
 
 COPY --from=builder /app/apps/api/package.json ./apps/api/
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
@@ -47,4 +47,5 @@ EXPOSE 3001
 ENV NODE_ENV=production
 
 WORKDIR /app/apps/api
-CMD ["npx", "tsx", "src/index.ts"]
+# Auto-migrar base de datos y luego arrancar la API
+CMD ["sh", "-c", "cd /app/packages/db && npx drizzle-kit push:pg && cd /app/apps/api && npx tsx src/index.ts"]
