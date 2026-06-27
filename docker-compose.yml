@@ -44,3 +44,25 @@ networks:
     external: true
   default:
     driver: bridge
+
+# ========================================================================
+# SERVICIOS ADICIONALES PARA ENTORNOS DE DESARROLLO (COMENTADOS)
+# ========================================================================
+# Descomentar este bloque si el entorno no cuenta con un PostgreSQL alojado.
+# 
+#  postgres:
+#    image: postgres:15-alpine
+#    restart: unless-stopped
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=tu_password_local
+#      - POSTGRES_DB=todosunidos
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - default
+#
+#volumes:
+#  postgres_data:
