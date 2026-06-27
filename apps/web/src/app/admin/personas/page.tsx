@@ -86,9 +86,14 @@ export default async function AdminPersonasPage() {
                   {person.tips.length > 0 && (
                     <tr className="bg-slate-50 border-t-0">
                       <td colSpan={5} className="px-6 py-4">
-                        <div className="bg-white rounded-xl border border-purple-100 p-4">
-                          <h4 className="text-purple-800 font-bold text-xs uppercase tracking-wider mb-3">Pistas Ciudadanas</h4>
-                          <div className="space-y-3">
+                        <details className="group bg-white rounded-xl border border-purple-100">
+                          <summary className="list-none cursor-pointer flex justify-between items-center p-4 outline-none focus:ring-2 focus:ring-purple-200 rounded-xl">
+                            <h4 className="text-purple-800 font-bold text-xs uppercase tracking-wider">Pistas Ciudadanas ({person.tips.length})</h4>
+                            <span className="text-purple-500 font-bold text-xs group-open:hidden flex items-center gap-1">Ver detalles <span className="text-[10px]">▼</span></span>
+                            <span className="text-purple-500 font-bold text-xs hidden group-open:flex items-center gap-1">Ocultar <span className="text-[10px]">▲</span></span>
+                          </summary>
+                          
+                          <div className="p-4 pt-0 space-y-3 border-t border-purple-50 mt-2">
                             {person.tips.map(tip => (
                               <div key={tip.id} className="flex justify-between items-start gap-4 p-3 bg-purple-50 rounded-lg">
                                 <div>
@@ -103,14 +108,14 @@ export default async function AdminPersonasPage() {
                                   'use server';
                                   await deleteTipAction(tip.id);
                                 }}>
-                                  <button type="submit" className="text-red-400 hover:text-red-600 bg-white px-2 py-1 rounded border border-red-100 text-xs font-bold">
+                                  <button type="submit" className="text-red-400 hover:text-red-600 bg-white px-2 py-1 rounded border border-red-100 text-xs font-bold transition-colors">
                                     Borrar
                                   </button>
                                 </form>
                               </div>
                             ))}
                           </div>
-                        </div>
+                        </details>
                       </td>
                     </tr>
                   )}
