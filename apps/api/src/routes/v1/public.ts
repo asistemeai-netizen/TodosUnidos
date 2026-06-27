@@ -85,7 +85,6 @@ publicApi.post('/personas', async (c) => {
 
   // Insertar en BD
   const [newPerson] = await db.insert(unifiedPersons).values({
-    source: `api-${apiKey.platformName}`,
     status: body.status,
     firstName: body.firstName,
     lastName: body.lastName,
