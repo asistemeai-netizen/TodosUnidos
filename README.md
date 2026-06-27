@@ -5,13 +5,14 @@ Plataforma centralizada de búsqueda y unificación de personas desaparecidas en
 ## ¿Qué hace?
 
 - **Directorio unificado** de personas desaparecidas, localizadas y fallecidas
-- **Deduplicación automática** de registros provenientes de distintas plataformas mediante fuzzy matching
-- **Feed de noticias con IA** — resúmenes generados por Google Gemini cada hora desde fuentes venezolanas
-- **Monitoreo de YouTube con IA** — extracción automática de videos relevantes a la emergencia.
+- **Deduplicación automática** con IA — Gemini analiza registros cada 6 horas y marca posibles duplicados para revisión humana
+- **Feed de noticias con IA** — resúmenes generados por Gemini cada 20 minutos desde fuentes venezolanas (SearxNG + RSS)
+- **Monitoreo de YouTube con IA** — extracción y moderación automática de videos relevantes a la emergencia cada 30 minutos
 - **Centros de acopio** — directorio de puntos de recolección y donación
+- **Moderación de tips ciudadanos** — Gemini filtra spam e insultos; el admin revisa los rechazados
 - **API pública para partners** — webhooks y endpoints REST para organizaciones aliadas
-- **Panel de administración** con métricas, revisión de duplicados y gestión de API keys
-- **Servidor MCP (Model Context Protocol)** — servidor nativo para que herramientas de IA (Claude, Cursor, etc.) interactúen con la base de datos en tiempo real.
+- **Servidor MCP** — permite a herramientas de IA (Claude, Cursor, etc.) consultar la base de datos en tiempo real
+- **Panel de administración** con métricas, revisión de duplicados, gestión de canales YouTube y API keys
 
 ## Stack
 
@@ -19,9 +20,10 @@ Plataforma centralizada de búsqueda y unificación de personas desaparecidas en
 |------|-----------|
 | Frontend | Next.js 16 · React 19 · Tailwind CSS |
 | Backend | Hono.js · Node.js |
-| Base de datos | PostgreSQL · Drizzle ORM |
-| Storage | MinIO (S3-compatible) |
-| IA | Google Gemini (`gemini-3.1-flash-lite-preview`) |
+| MCP | Express · SSE (Server-Sent Events) |
+| Base de datos | PostgreSQL · Drizzle ORM · `pg_trgm` (fuzzy matching) |
+| Storage | MinIO (S3-compatible, auto-provisioning de bucket) |
+| IA | Google Gemini 2.5 Flash / 3.1 Flash Lite |
 | Monorepo | pnpm workspaces |
 
 ## Estructura
@@ -29,9 +31,9 @@ Plataforma centralizada de búsqueda y unificación de personas desaparecidas en
 ```
 todosunidos/
 ├── apps/
-│   ├── api/       # API REST + webhooks + crons (Noticias, YouTube, Deduplicación)
+│   ├── api/       # API REST + webhooks + crons (noticias, YouTube, deduplicación)
 │   ├── web/       # Sitio público + panel admin (Next.js)
-│   └── mcp/       # Servidor MCP (Protocolo de Contexto de Modelos)
+│   └── mcp/       # Servidor MCP para herramientas de IA
 └── packages/
     └── db/        # Schema compartido (Drizzle ORM)
 ```
@@ -40,8 +42,10 @@ todosunidos/
 
 - Node.js >= 20
 - pnpm >= 8
-- PostgreSQL (ver variables de entorno)
+- PostgreSQL con extensión `pg_trgm`
 - MinIO o bucket S3 compatible
+- Google Gemini API key
+- YouTube Data API key
 
 ## Instalación
 
@@ -52,9 +56,10 @@ pnpm install
 ## Variables de entorno
 
 > [!NOTE]
-> Para simplificar el despliegue en producción (por ejemplo usando Dokploy / Docker Compose), la mayoría de las variables están consolidadas en el nivel raíz. Revisa el archivo `docker-compose.yml`.
+> Para despliegue en producción (Dokploy / Docker Compose), las variables se consolidan a nivel raíz. Ver `docker-compose.yml`.
 
-### Variables Globales o Raíz (Para el `docker-compose.yml` en producción)
+### Variables globales (producción)
+
 ```env
 DATABASE_URL=
 ADMIN_PASSWORD=
@@ -68,12 +73,9 @@ MINIO_ACCESS_KEY=
 MINIO_SECRET_KEY=
 ```
 
-### Configuración de MinIO
-El sistema incluye configuración automática para MinIO (auto-creación de bucket). Si no especificas `MINIO_BUCKET`, utilizará un bucket llamado `todosunidos` por defecto y lo creará al subir la primera foto.
+> `MINIO_BUCKET` es opcional — si se omite, usa `todosunidos` y lo crea automáticamente al subir la primera foto.
 
----
-
-### Si prefieres desarrollo local independiente (`.env` por cada App)
+### Desarrollo local (por app)
 
 **`apps/api/.env`**
 ```env
@@ -85,14 +87,14 @@ YOUTUBE_API_KEY=
 MINIO_ENDPOINT=
 MINIO_ACCESS_KEY=
 MINIO_SECRET_KEY=
-MINIO_BUCKET= # Opcional
+MINIO_BUCKET=          # Opcional
 ```
 
 **`apps/web/.env.local`**
 ```env
 DATABASE_URL=
 ADMIN_PASSWORD=
-NEXT_PUBLIC_API_URL= # (Opcional) En desarrollo: http://localhost:3001/api/v1
+NEXT_PUBLIC_API_URL=   # En desarrollo: http://localhost:3001/api/v1
 ```
 
 **`apps/mcp/.env`**
@@ -111,6 +113,9 @@ cd apps/api && npm run dev
 
 # Solo el frontend (puerto 3000)
 cd apps/web && npm run dev
+
+# Solo el servidor MCP (puerto 3002)
+cd apps/mcp && npm run dev
 ```
 
 ## Base de datos
@@ -129,33 +134,61 @@ cd packages/db && npm run push
 pnpm build
 ```
 
-Cada app se puede desplegar de forma independiente. La API es un servidor Node.js estándar; el frontend es una app Next.js compatible con cualquier proveedor que soporte SSR.
+Tres servicios Docker independientes orquestados con Docker Compose:
 
-## Schema de base de datos
+| Servicio | Puerto | Descripción |
+|---------|--------|-------------|
+| `web` | 3000 | Frontend público + panel admin |
+| `api` | 3001 | API REST + cron jobs de automatización |
+| `mcp` | 3002 | Servidor MCP para herramientas de IA |
+
+## Schema de base de datos (11 tablas)
 
 | Tabla | Descripción |
 |-------|-------------|
 | `platforms` | Organizaciones aliadas autorizadas |
 | `unifiedPersons` | Registro maestro unificado por persona |
-| `platformReports` | Reportes crudos de cada plataforma |
-| `potentialDuplicates` | Cola de duplicados para revisión humana |
+| `platformReports` | Reportes crudos de cada plataforma (contacto cifrado) |
+| `potentialDuplicates` | Cola de duplicados para revisión humana (score 0-100) |
 | `newsSummaries` | Resúmenes de noticias generados por IA |
 | `collectionCenters` | Centros de acopio y donación |
-| `personTips` | Información aportada por la comunidad |
+| `personTips` | Tips ciudadanos sobre personas (con moderación IA) |
 | `apiKeys` | Credenciales para partners |
 | `webhooks` | Suscripciones a eventos por partner |
+| `youtubeChannels` | Canales de YouTube monitoreados (con filtros de palabras clave) |
+| `youtubeVideos` | Videos aprobados con título, thumbnail y metadatos |
+
+## Automatizaciones (cron jobs)
+
+| Job | Frecuencia | Descripción |
+|-----|-----------|-------------|
+| `newsAutomator` | Cada 20 min | Agrega noticias de SearxNG y RSS; Gemini resume y filtra |
+| `youtubeAutomator` | Cada 30 min | Descarga videos de canales registrados; Gemini modera contenido irrelevante |
+| `deduplicatorAutomator` | Cada 6 horas | Gemini analiza los últimos 200 registros y genera candidatos a duplicados |
+
+## Servidor MCP
+
+Permite a herramientas de IA acceder a la base de datos sin pasar por HTTP. Herramientas expuestas:
+
+| Tool | Descripción |
+|------|-------------|
+| `buscar_personas` | Busca por nombre, apellido o cédula (hasta 10 resultados) |
+| `consultar_acopios` | Lista centros de acopio aprobados, filtrable por estado |
+| `obtener_estadisticas` | Totales de desaparecidos, localizados, fallecidos y centros activos |
 
 ## API para partners
 
 Autenticación mediante header `x-api-key`.
 
 ```
-POST /api/v1/personas        # Reportar persona
-GET  /api/v1/personas        # Consultar directorio
-POST /api/v1/webhooks        # Registrar webhook
+GET  /api/v1/personas        # Listar directorio (paginado, máx. 100)
+GET  /api/v1/personas/:id    # Detalle de persona con tips
+POST /api/v1/personas        # Reportar persona (dispara webhooks)
+POST /api/v1/webhooks        # Registrar webhook para eventos
+POST /api/webhooks/ingest    # Ingesta externa con fuzzy matching automático
 ```
 
-Los webhooks reciben eventos en tiempo real cuando se crea o actualiza una persona.
+Los webhooks reciben eventos (`person.created`, `person.updated`) en tiempo real con payload completo.
 
 ## Licencia
 

@@ -13,6 +13,11 @@ const nextConfig = {
         port: '9000',
         pathname: '/todosunidos/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'sismo911.com',
+        pathname: '/api/familia/photo/**',
+      },
     ],
   },
 };

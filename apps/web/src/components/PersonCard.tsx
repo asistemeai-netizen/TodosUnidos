@@ -107,7 +107,7 @@ export default function PersonCard({ person }: PersonCardProps) {
               src={person.photoUrl} 
               alt={`Foto de ${person.firstName}`} 
               fill 
-              className="object-cover transition-transform group-hover:scale-105"
+              className="object-cover object-top transition-transform group-hover:scale-105"
             />
           ) : (
             <span className="text-2xl font-serif font-bold text-[#0f2861]/30 tracking-tighter">
@@ -156,7 +156,7 @@ export default function PersonCard({ person }: PersonCardProps) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Cabecera con Foto */}
-            <div className="relative w-full h-64 bg-[#0f2861] shrink-0">
+            <div className="relative w-full bg-slate-900 shrink-0 flex justify-center items-center">
               <button 
                 onClick={() => setIsModalOpen(false)} 
                 className="absolute top-4 right-4 z-10 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 backdrop-blur-md transition-colors"
@@ -169,11 +169,12 @@ export default function PersonCard({ person }: PersonCardProps) {
                 <Image 
                   src={person.photoUrl} 
                   alt={`Foto de ${person.firstName}`} 
-                  fill 
-                  className="object-cover"
+                  width={600}
+                  height={800}
+                  className="w-full h-auto max-h-[60vh] object-contain"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-slate-100">
+                <div className="w-full h-64 flex items-center justify-center bg-slate-100">
                   <svg className="w-20 h-20 text-slate-300" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
