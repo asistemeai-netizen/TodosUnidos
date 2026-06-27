@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function AcopioPage() {
   return (
-    <main className="flex-1 bg-[#FAFAFA] min-h-screen">
+    <main className="flex-1 min-h-screen">
       <CollectionCentersList />
     </main>
   );

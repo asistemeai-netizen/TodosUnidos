@@ -138,3 +138,10 @@ export async function getYoutubeVideosAction() {
     limit: 3,
   });
 }
+
+export async function getAllYoutubeVideosAction() {
+  return await db.query.youtubeVideos.findMany({
+    orderBy: [desc(youtubeVideos.publishedAt)],
+    limit: 100,
+  });
+}

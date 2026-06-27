@@ -2,11 +2,7 @@ import React from 'react';
 
 export default function DevelopersPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col pt-24 relative">
-      <div 
-        className="fixed inset-0 z-0 opacity-10 bg-center bg-no-repeat bg-cover pointer-events-none"
-        style={{ backgroundImage: "url('/vzla-bg.png')" }}
-      ></div>
+    <div className="min-h-screen flex flex-col pt-24 relative">
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 relative z-10">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-black text-[#0f2861] tracking-tight">Portal para Desarrolladores</h1>

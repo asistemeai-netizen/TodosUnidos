@@ -23,11 +23,7 @@ export default async function Home() {
   const youtubeVideos = await getYoutubeVideosAction();
 
   return (
-    <main className="flex flex-col min-h-screen bg-[#FAFAFA] relative">
-      <div 
-        className="fixed inset-0 z-0 opacity-10 bg-center bg-no-repeat bg-cover pointer-events-none"
-        style={{ backgroundImage: "url('/vzla-bg.png')" }}
-      ></div>
+    <main className="flex flex-col min-h-screen relative">
       {/* Banner Sismologico en tiempo real */}
       <EarthquakeBanner />
       
@@ -140,6 +136,9 @@ export default async function Home() {
               </h2>
               <p className="text-slate-500 font-medium mt-1">Cobertura directa desde canales oficiales de YouTube</p>
             </div>
+            <a href="/videos" className="text-red-600 font-bold hover:text-red-700 transition-colors flex items-center gap-1 text-sm md:text-base whitespace-nowrap">
+              Ver archivo <span aria-hidden="true">&rarr;</span>
+            </a>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

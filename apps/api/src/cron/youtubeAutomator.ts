@@ -1,9 +1,12 @@
 import cron from 'node-cron';
 import { db, youtubeChannels, youtubeVideos } from '@todosunidos/db';
 import { eq } from 'drizzle-orm';
+import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const YT_BASE = "https://www.googleapis.com/youtube/v3";
 
@@ -50,6 +53,7 @@ export async function runYoutubeAutomator() {
           .map((k) => k.trim().toLowerCase())
           .filter(Boolean);
 
+        const candidates = [];
         for (const it of items) {
           const s = it.snippet;
           const videoId = it.contentDetails?.videoId;
@@ -68,20 +72,57 @@ export async function runYoutubeAutomator() {
           const link = `https://www.youtube.com/watch?v=${videoId}`;
           const thumbnailUrl = s.thumbnails?.high?.url || s.thumbnails?.default?.url || null;
 
-          // INSERT ON CONFLICT DO NOTHING (Drizzle Postgresql)
-          const result = await db.insert(youtubeVideos).values({
+          candidates.push({
             videoId,
             channelId: channel.id,
             title,
-            description: description.slice(0, 1000), // Límite de texto
+            description: description.slice(0, 1000),
             url: link,
             thumbnailUrl,
             publishedAt: new Date(s.publishedAt),
             channelName: s.channelTitle || channel.name
-          }).onConflictDoNothing({ target: youtubeVideos.videoId });
+          });
+        }
 
+        if (candidates.length === 0) continue;
+
+        // Filtro con Gemini AI
+        let videosToBlock: string[] = [];
+        try {
+          const prompt = `
+            Eres un moderador de una plataforma de emergencias en Venezuela.
+            Identifica cuáles de estos videos NO tienen nada que ver con la catástrofe, terremotos, rescates, donaciones, emergencias o víctimas.
+            Si un video es sobre política general, farándula, deportes o temas irrelevantes, márcalo para eliminar.
+            Devuelve un JSON estrictamente con: {"videosToBlockIds": ["videoId1", "videoId2"]}
+            
+            Videos:
+            ${candidates.map(v => `ID: ${v.videoId} | Título: ${v.title}`).join('\n')}
+          `;
+
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: { responseMimeType: 'application/json' }
+          });
+
+          if (response.text) {
+            const result = JSON.parse(response.text);
+            videosToBlock = result.videosToBlockIds || [];
+          }
+        } catch (aiError) {
+          console.error(`[CRON] Error con Gemini en canal ${channel.name}:`, aiError);
+        }
+
+        for (const video of candidates) {
+          if (videosToBlock.includes(video.videoId)) {
+            console.log(`[CRON] 🚫 Video bloqueado por IA: ${video.title}`);
+            continue;
+          }
+
+          const result = await db.insert(youtubeVideos).values(video).onConflictDoNothing({ target: youtubeVideos.videoId });
           if (result.rowCount && result.rowCount > 0) {
             insertadosTotal++;
+            console.log(`[CRON] ✅ Nuevo video agregado: ${video.title}`);
           }
         }
       } catch (err) {

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function EmergenciasPage() {
   return (
-    <main className="flex-1 bg-[#FAFAFA] min-h-screen pt-4">
+    <main className="flex-1 min-h-screen pt-4">
       <EmergencyDirectory />
     </main>
   );

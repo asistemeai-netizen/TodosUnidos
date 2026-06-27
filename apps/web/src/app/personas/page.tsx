@@ -12,11 +12,7 @@ export default async function PersonasPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col pt-24 relative">
-      <div 
-        className="absolute inset-0 z-0 opacity-10 bg-fixed bg-center bg-no-repeat bg-cover pointer-events-none"
-        style={{ backgroundImage: "url('/vzla-bg.png')" }}
-      ></div>
+    <div className="min-h-screen flex flex-col pt-24 relative">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 relative z-10">
         <div className="mb-8">
           <a href="/" className="text-slate-500 hover:text-[#0f2861] text-sm font-semibold mb-4 inline-flex items-center gap-1 transition-colors">

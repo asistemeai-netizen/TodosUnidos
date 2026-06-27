@@ -14,7 +14,7 @@ export default async function NoticiasPage() {
   });
 
   return (
-    <div className="flex-1 bg-[#FAFAFA] min-h-screen pt-12 pb-24 relative overflow-hidden">
+    <div className="flex-1 min-h-screen pt-12 pb-24 relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
       

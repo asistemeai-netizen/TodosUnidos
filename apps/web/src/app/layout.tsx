@@ -19,7 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="scroll-smooth">
-      <body className="bg-[#FAFAFA] text-slate-900 antialiased min-h-screen flex flex-col">
+      <body className="bg-[#FAFAFA] text-slate-900 antialiased min-h-screen flex flex-col relative">
+        {/* Global Background Layer */}
+        <div 
+          className="fixed inset-0 z-[-1] opacity-10 bg-center bg-no-repeat bg-cover pointer-events-none"
+          style={{ backgroundImage: "url('/vzla-bg.png')" }}
+        ></div>
         <Header />
         <main className="flex-1 flex flex-col">
           {children}
