@@ -18,7 +18,11 @@ export default function DevelopersPage() {
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
             <h3 className="text-amber-800 font-bold mb-1">¿Cómo solicitar tu API Key?</h3>
             <p className="text-amber-700 text-sm">
-              Para obtener credenciales de acceso para tu plataforma, escríbenos un mensaje directo a nuestra cuenta oficial de Instagram 
+              Para obtener credenciales de acceso para tu plataforma, escríbenos un correo a{' '}
+              <a href="mailto:ayudavenezuela@todosunidos.com" className="font-bold underline hover:text-amber-900">
+                ayudavenezuela@todosunidos.com
+              </a>{' '}
+              o envíanos un mensaje directo a nuestra cuenta oficial de Instagram 
               <a href="https://www.instagram.com/ayudavenezuela.todosunidos/" target="_blank" rel="noopener noreferrer" className="font-bold underline ml-1 hover:text-amber-900">
                 @ayudavenezuela.todosunidos
               </a>.
