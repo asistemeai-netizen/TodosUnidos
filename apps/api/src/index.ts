@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 import 'dotenv/config'
 import { startNewsCron, runNewsAutomator } from './cron/newsAutomator'
 import { startYoutubeCron, runYoutubeAutomator } from './cron/youtubeAutomator'
+import { startDeduplicatorCron } from './cron/deduplicatorAutomator'
 
 const app = new Hono()
 
@@ -17,9 +18,10 @@ app.get('/', (c) => {
   return c.json({ status: 'ok', message: 'TodosUnidos Hub API funcionando al tiro' })
 })
 
-// Iniciar el Cron Job de noticias
+// Iniciar los Cron Jobs
 startNewsCron();
 startYoutubeCron();
+startDeduplicatorCron();
 
 // Ruta de prueba para forzar el motor de noticias manualmente
 app.get('/api/test-cron', async (c) => {

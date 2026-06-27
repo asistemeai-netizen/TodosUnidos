@@ -49,7 +49,8 @@ export const platformReports = pgTable('platform_reports', {
 export const potentialDuplicates = pgTable('potential_duplicates', {
   id: uuid('id').defaultRandom().primaryKey(),
   unifiedPersonId: uuid('unified_person_id').references(() => unifiedPersons.id).notNull(),
-  platformReportId: uuid('platform_report_id').references(() => platformReports.id).notNull(),
+  platformReportId: uuid('platform_report_id').references(() => platformReports.id), // Nullable if it's an internal duplicate
+  duplicatePersonId: uuid('duplicate_person_id').references(() => unifiedPersons.id), // Used for internal duplicates
   confidenceScore: integer('confidence_score').notNull(), // Porcentaje de similitud (0-100)
   status: varchar('status', { length: 50 }).default('pendiente').notNull(), // pendiente, aprobado, rechazado
   createdAt: timestamp('created_at').defaultNow().notNull(),
