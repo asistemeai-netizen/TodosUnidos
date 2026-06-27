@@ -108,7 +108,6 @@ export default function PersonCard({ person }: PersonCardProps) {
               alt={`Foto de ${person.firstName}`} 
               fill 
               className="object-cover transition-transform group-hover:scale-105"
-              unoptimized={true}
             />
           ) : (
             <span className="text-2xl font-serif font-bold text-[#0f2861]/30 tracking-tighter">
@@ -172,7 +171,6 @@ export default function PersonCard({ person }: PersonCardProps) {
                   alt={`Foto de ${person.firstName}`} 
                   fill 
                   className="object-cover"
-                  unoptimized={true}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-100">
