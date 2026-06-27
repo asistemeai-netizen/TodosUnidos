@@ -5,6 +5,7 @@ import EarthquakeBanner from "../components/EarthquakeBanner";
 import AiNewsFeed from "../components/AiNewsFeed";
 import ReportPersonButton from "../components/ReportPersonButton";
 import LinksCarousel from "../components/LinksCarousel";
+import HogarBambiBanner from "../components/HogarBambiBanner";
 
 // Opcional: Revalidación ISR para regenerar la página cada 60 segundos
 export const revalidate = 60;
@@ -128,6 +129,9 @@ export default async function Home() {
       <div id="noticias">
         <AiNewsFeed />
       </div>
+
+      {/* Aliado Especial */}
+      <HogarBambiBanner />
 
       {/* Otras Plataformas de Ayuda */}
       <LinksCarousel />
