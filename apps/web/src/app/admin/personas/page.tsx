@@ -1,0 +1,133 @@
+import { checkAuth, changePersonStatusAction, deletePersonAction, deleteTipAction } from '@/actions/adminActions';
+import { db, unifiedPersons } from '@todosunidos/db';
+import { desc } from 'drizzle-orm';
+import React from 'react';
+
+export default async function AdminPersonasPage() {
+  await checkAuth();
+
+  const persons = await db.query.unifiedPersons.findMany({
+    orderBy: [desc(unifiedPersons.createdAt)],
+    with: {
+      tips: true
+    }
+  });
+
+  return (
+    <div>
+      <div className="flex justify-between items-end mb-8">
+        <div>
+          <h1 className="text-3xl font-black text-[#0f2861] mb-2">Directorio de Personas</h1>
+          <p className="text-slate-500">Gestión de desaparecidos, cambios de estatus y revisión de aportes.</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4">Persona</th>
+                <th className="px-6 py-4">Documento</th>
+                <th className="px-6 py-4">Estatus</th>
+                <th className="px-6 py-4">Aportes (Tips)</th>
+                <th className="px-6 py-4 text-right">Acciones Peligrosas</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {persons.map((person) => (
+                <React.Fragment key={person.id}>
+                  <tr className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-[#0f2861]">{person.firstName} {person.lastName}</div>
+                      <div className="text-xs text-slate-400">ID: {person.id.split('-')[0]}...</div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600 font-medium">
+                      {person.documentId || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <form action={async (formData) => {
+                        'use server';
+                        await changePersonStatusAction(person.id, formData.get('status') as string);
+                      }} className="flex items-center gap-2">
+                        <select 
+                          name="status"
+                          defaultValue={person.status}
+                          className="bg-slate-100 border-none text-slate-700 text-xs font-bold rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#f1b218]"
+                        >
+                          <option value="desaparecido">Desaparecido</option>
+                          <option value="verificando">Verificando</option>
+                          <option value="localizado_sano">Localizado (Sano)</option>
+                          <option value="fallecido">Fallecido</option>
+                        </select>
+                        <button type="submit" className="bg-[#0f2861] text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-800 transition-colors">
+                          Guardar
+                        </button>
+                      </form>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold ${person.tips.length > 0 ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-500'}`}>
+                        {person.tips.length} aportes
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <form action={async () => {
+                        'use server';
+                        await deletePersonAction(person.id);
+                      }}>
+                        <button type="submit" className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg text-xs font-bold transition-colors">
+                          Eliminar Registro
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  
+                  {/* Fila expandida si hay aportes */}
+                  {person.tips.length > 0 && (
+                    <tr className="bg-slate-50 border-t-0">
+                      <td colSpan={5} className="px-6 py-4">
+                        <div className="bg-white rounded-xl border border-purple-100 p-4">
+                          <h4 className="text-purple-800 font-bold text-xs uppercase tracking-wider mb-3">Pistas Ciudadanas</h4>
+                          <div className="space-y-3">
+                            {person.tips.map(tip => (
+                              <div key={tip.id} className="flex justify-between items-start gap-4 p-3 bg-purple-50 rounded-lg">
+                                <div>
+                                  <div className="text-sm font-medium text-slate-800">
+                                    "{tip.informationText}"
+                                  </div>
+                                  <div className="text-xs text-slate-500 mt-1">
+                                    Por: {tip.contactName || 'Anónimo'} {tip.contactPhone ? `(${tip.contactPhone})` : ''} - {new Date(tip.createdAt).toLocaleString('es-VE')}
+                                  </div>
+                                </div>
+                                <form action={async () => {
+                                  'use server';
+                                  await deleteTipAction(tip.id);
+                                }}>
+                                  <button type="submit" className="text-red-400 hover:text-red-600 bg-white px-2 py-1 rounded border border-red-100 text-xs font-bold">
+                                    Borrar
+                                  </button>
+                                </form>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+              
+              {persons.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                    No hay personas registradas en el directorio.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
