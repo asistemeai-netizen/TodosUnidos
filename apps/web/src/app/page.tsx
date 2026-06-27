@@ -124,13 +124,13 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Otras Plataformas de Ayuda */}
-      <LinksCarousel />
-
-      {/* AI News Feed - Gemini Integration (Ahora debajo de reportes recientes) */}
+      {/* AI News Feed - Gemini Integration */}
       <div id="noticias">
         <AiNewsFeed />
       </div>
+
+      {/* Otras Plataformas de Ayuda */}
+      <LinksCarousel />
     </main>
   );
 }

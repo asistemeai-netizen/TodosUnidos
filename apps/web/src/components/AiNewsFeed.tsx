@@ -1,5 +1,6 @@
 import { db } from '@todosunidos/db';
 import { desc } from 'drizzle-orm';
+import Link from 'next/link';
 
 export default async function AiNewsFeed() {
   // Obtenemos el boletín más reciente generado por Gemini
@@ -54,10 +55,18 @@ export default async function AiNewsFeed() {
             )}
           </div>
 
-          {/* Timestamp */}
-          <div className="flex-shrink-0 text-right">
-            <p className="text-slate-400 text-xs font-medium">Última actualización</p>
-            <p className="text-[#f1b218] text-sm font-bold">{dateFormatted}</p>
+          {/* Timestamp & Link */}
+          <div className="flex-shrink-0 text-right flex flex-col items-end justify-between h-full min-h-[4rem]">
+            <div>
+              <p className="text-slate-400 text-xs font-medium">Última actualización</p>
+              <p className="text-[#f1b218] text-sm font-bold">{dateFormatted}</p>
+            </div>
+            <Link href="/noticias" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-colors border border-white/10 whitespace-nowrap">
+              Ver Historial
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
           
         </div>
