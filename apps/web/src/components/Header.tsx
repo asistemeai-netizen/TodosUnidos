@@ -23,10 +23,10 @@ export default function Header() {
 
           {/* Nav Menu */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#busqueda" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Búsqueda</a>
-            <a href="#noticias" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Noticias (IA)</a>
-            <a href="#acopio" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Acopio</a>
-            <a href="#emergencias" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Emergencias</a>
+            <a href="/#busqueda" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Búsqueda</a>
+            <Link href="/noticias" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Noticias (IA)</Link>
+            <Link href="/acopio" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Acopio</Link>
+            <Link href="/emergencias" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Emergencias</Link>
             <Link href="/developers" className="text-sm font-bold text-[#0f2861] bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors">Developers</Link>
             
             <a 

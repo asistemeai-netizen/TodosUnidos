@@ -120,10 +120,10 @@ export async function runNewsAutomator() {
 }
 
 // Ejecutar cada 1 hora ('0 * * * *')
-// Para pruebas rápidas podemos usar ('* * * * *') que es cada minuto.
+// Ejecutar cada 20 minutos ('*/20 * * * *')
 export function startNewsCron() {
-  cron.schedule('0 * * * *', () => {
+  cron.schedule('*/20 * * * *', () => {
     runNewsAutomator();
   });
-  console.log('🕒 Tarea Cron de Noticias programada (Cada hora)');
+  console.log('🕒 Tarea Cron de Noticias programada (Cada 20 minutos)');
 }

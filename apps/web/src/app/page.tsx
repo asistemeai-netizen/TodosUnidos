@@ -1,11 +1,8 @@
 import Image from "next/image";
 import { db } from "@todosunidos/db";
-import PersonCard from "../components/PersonCard";
 import EarthquakeBanner from "../components/EarthquakeBanner";
-import EmergencyDirectory from "../components/EmergencyDirectory";
 import AiNewsFeed from "../components/AiNewsFeed";
 import ReportPersonButton from "../components/ReportPersonButton";
-import CollectionCentersList from "../components/CollectionCentersList";
 import LinksCarousel from "../components/LinksCarousel";
 
 // Opcional: Revalidación ISR para regenerar la página cada 60 segundos
@@ -98,12 +95,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-
-      {/* AI News Feed - Gemini Integration */}
-      <div id="noticias">
-        <AiNewsFeed />
-      </div>
-
       <div id="busqueda" className="z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col gap-12">
 
         <div className="flex justify-between items-end mb-2 px-2">
@@ -135,14 +126,9 @@ export default async function Home() {
       {/* Otras Plataformas de Ayuda */}
       <LinksCarousel />
 
-      {/* Directorio de Centros de Acopio */}
-      <div id="acopio">
-        <CollectionCentersList />
-      </div>
-
-      {/* Directorio de Emergencias */}
-      <div id="emergencias">
-        <EmergencyDirectory />
+      {/* AI News Feed - Gemini Integration (Ahora debajo de reportes recientes) */}
+      <div id="noticias">
+        <AiNewsFeed />
       </div>
     </main>
   );
