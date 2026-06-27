@@ -1,8 +1,6 @@
 'use server';
 
-import { db } from "@todosunidos/db";
-import { personTips } from "@todosunidos/db/src/schema";
-import { desc, eq } from "drizzle-orm";
+import { db, personTips, newsSummaries, collectionCenters, youtubeVideos, desc, eq, and } from "@todosunidos/db";
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -118,4 +116,25 @@ export async function approveTipAction(tipId: string) {
     console.error("Error approving tip:", error);
     return { success: false, error: "Error al aprobar el aporte" };
   }
+}
+
+export async function getCollectionCentersAction() {
+  return await db.query.collectionCenters.findMany({
+    where: eq(collectionCenters.status, 'aprobado'),
+    orderBy: [desc(collectionCenters.createdAt)],
+  });
+}
+
+export async function getNewsSummariesAction() {
+  return await db.query.newsSummaries.findMany({
+    orderBy: [desc(newsSummaries.createdAt)],
+    limit: 10,
+  });
+}
+
+export async function getYoutubeVideosAction() {
+  return await db.query.youtubeVideos.findMany({
+    orderBy: [desc(youtubeVideos.publishedAt)],
+    limit: 3,
+  });
 }

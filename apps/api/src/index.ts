@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
 import 'dotenv/config'
 import { startNewsCron, runNewsAutomator } from './cron/newsAutomator'
+import { startYoutubeCron, runYoutubeAutomator } from './cron/youtubeAutomator'
 
 const app = new Hono()
 
@@ -18,11 +19,18 @@ app.get('/', (c) => {
 
 // Iniciar el Cron Job de noticias
 startNewsCron();
+startYoutubeCron();
 
 // Ruta de prueba para forzar el motor de noticias manualmente
 app.get('/api/test-cron', async (c) => {
   await runNewsAutomator();
   return c.json({ message: 'Motor de noticias ejecutado manualmente.' });
+});
+
+// Ruta de prueba para forzar YouTube manualmente
+app.get('/api/test-youtube', async (c) => {
+  await runYoutubeAutomator();
+  return c.json({ message: 'Recolección de YouTube ejecutada manualmente.' });
 });
 
 import webhooks from './webhooks'

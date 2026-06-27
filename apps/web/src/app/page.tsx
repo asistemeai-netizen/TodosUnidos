@@ -6,6 +6,9 @@ import AiNewsFeed from "../components/AiNewsFeed";
 import ReportPersonButton from "../components/ReportPersonButton";
 import LinksCarousel from "../components/LinksCarousel";
 import HogarBambiBanner from "../components/HogarBambiBanner";
+import { getYoutubeVideosAction } from "./actions";
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 // Opcional: Revalidación ISR para regenerar la página cada 60 segundos
 export const revalidate = 60;
@@ -16,6 +19,8 @@ export default async function Home() {
     orderBy: (persons, { desc }) => [desc(persons.createdAt)],
     limit: 15
   });
+
+  const youtubeVideos = await getYoutubeVideosAction();
 
   return (
     <main className="flex flex-col min-h-screen bg-[#FAFAFA] relative">
@@ -124,6 +129,45 @@ export default async function Home() {
           </a>
         </div>
       </div>
+
+      {/* YouTube Videos Section */}
+      {youtubeVideos.length > 0 && (
+        <div className="z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200">
+          <div className="flex justify-between items-end mb-8 px-2">
+            <div>
+              <h2 className="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <span className="text-red-600">▶</span> Últimos Reportes en Video
+              </h2>
+              <p className="text-slate-500 font-medium mt-1">Cobertura directa desde canales oficiales de YouTube</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {youtubeVideos.map(video => (
+              <a key={video.id} href={video.url} target="_blank" rel="noopener noreferrer" className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group block flex flex-col">
+                <div className="relative aspect-video w-full bg-slate-100 overflow-hidden">
+                  {video.thumbnailUrl ? (
+                    <img src={video.thumbnailUrl} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-300">Sin miniatura</div>
+                  )}
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-300" />
+                  <div className="absolute bottom-3 right-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm flex items-center gap-1">
+                    ▶ Ver video
+                  </div>
+                </div>
+                <div className="p-5 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start gap-4 mb-3">
+                    <span className="text-xs font-bold text-red-600 uppercase tracking-wider">{video.channelName}</span>
+                    <span className="text-xs text-slate-400 whitespace-nowrap">{formatDistanceToNow(new Date(video.publishedAt), { addSuffix: true, locale: es })}</span>
+                  </div>
+                  <h3 className="font-bold text-slate-800 leading-snug line-clamp-3 group-hover:text-red-600 transition-colors">{video.title}</h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* AI News Feed - Gemini Integration */}
       <div id="noticias">

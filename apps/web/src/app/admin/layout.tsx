@@ -23,6 +23,9 @@ export default function AdminLayout({
           <Link href="/admin/acopio" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
             Centros de Acopio
           </Link>
+          <Link href="/admin/youtube" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium text-red-300">
+            ▶ Canales YouTube
+          </Link>
           <Link href="/admin/moderacion" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
             Moderación IA
           </Link>

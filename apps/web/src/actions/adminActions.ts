@@ -2,8 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { db, collectionCenters, unifiedPersons, personTips, apiKeys, webhooks } from '@todosunidos/db';
-import { eq } from 'drizzle-orm';
+import { db, collectionCenters, unifiedPersons, personTips, apiKeys, webhooks, youtubeChannels, youtubeVideos, potentialDuplicates, eq } from '@todosunidos/db';
 import { revalidatePath } from 'next/cache';
 
 // 1. Manejo de Sesión (Login muy básico para emergencias)
@@ -127,4 +126,42 @@ export async function deleteWebhookAction(id: string) {
   await db.delete(webhooks).where(eq(webhooks.id, id));
     
   revalidatePath('/admin/api');
+}
+
+// ==========================================
+// CANALES DE YOUTUBE (ADMIN)
+// ==========================================
+
+export async function addYoutubeChannelAction(formData: FormData) {
+  await checkAuth();
+  const name = formData.get('name') as string;
+  const channelId = formData.get('channelId') as string;
+  const keywords = formData.get('keywords') as string;
+
+  if (!name || !channelId) return;
+
+  await db.insert(youtubeChannels).values({
+    name,
+    channelId,
+    keywords: keywords || null,
+  });
+
+  revalidatePath('/admin/youtube');
+}
+
+export async function toggleYoutubeChannelAction(id: string, currentStatus: boolean) {
+  await checkAuth();
+  await db.update(youtubeChannels).set({ isActive: !currentStatus }).where(eq(youtubeChannels.id, id));
+  revalidatePath('/admin/youtube');
+}
+
+export async function deleteYoutubeChannelAction(id: string) {
+  await checkAuth();
+  
+  // Borrar los videos asociados primero
+  await db.delete(youtubeVideos).where(eq(youtubeVideos.channelId, id));
+  // Luego borrar el canal
+  await db.delete(youtubeChannels).where(eq(youtubeChannels.id, id));
+  
+  revalidatePath('/admin/youtube');
 }

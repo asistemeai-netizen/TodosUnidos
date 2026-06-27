@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, integer, timestamp, text, jsonb, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, integer, timestamp, text, jsonb, boolean as pgBoolean } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // 1. Plataformas aliadas autorizadas para enviar/recibir datos
@@ -93,7 +93,7 @@ export const apiKeys = pgTable('api_keys', {
   id: uuid('id').defaultRandom().primaryKey(),
   key: varchar('key', { length: 64 }).notNull().unique(),
   platformName: varchar('platform_name', { length: 255 }).notNull(),
-  isActive: boolean('is_active').default(true).notNull(),
+  isActive: pgBoolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -103,7 +103,31 @@ export const webhooks = pgTable('webhooks', {
   apiKeyId: uuid('api_key_id').references(() => apiKeys.id).notNull(),
   url: varchar('url', { length: 1024 }).notNull(),
   events: varchar('events', { length: 255 }).default('all').notNull(), // ej. "all", "person.created", "person.updated"
-  isActive: boolean('is_active').default(true).notNull(),
+  isActive: pgBoolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// 10. Canales de YouTube a monitorear
+export const youtubeChannels = pgTable('youtube_channels', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  channelId: varchar('channel_id', { length: 255 }).notNull().unique(), // Empieza con UC...
+  keywords: text('keywords'), // Separadas por coma
+  isActive: pgBoolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// 11. Videos de YouTube extraídos
+export const youtubeVideos = pgTable('youtube_videos', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  videoId: varchar('video_id', { length: 255 }).notNull().unique(),
+  channelId: uuid('channel_id').references(() => youtubeChannels.id).notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  url: text('url').notNull(),
+  thumbnailUrl: text('thumbnail_url'),
+  channelName: varchar('channel_name', { length: 255 }),
+  publishedAt: timestamp('published_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -127,5 +151,16 @@ export const webhooksRelations = relations(webhooks, ({ one }) => ({
   apiKey: one(apiKeys, {
     fields: [webhooks.apiKeyId],
     references: [apiKeys.id],
+  }),
+}));
+
+export const youtubeChannelsRelations = relations(youtubeChannels, ({ many }) => ({
+  videos: many(youtubeVideos),
+}));
+
+export const youtubeVideosRelations = relations(youtubeVideos, ({ one }) => ({
+  channel: one(youtubeChannels, {
+    fields: [youtubeVideos.channelId],
+    references: [youtubeChannels.id],
   }),
 }));
