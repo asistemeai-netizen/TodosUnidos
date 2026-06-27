@@ -41,9 +41,13 @@ export default function Footer() {
           </div>
           
           <div className="text-sm text-slate-500 font-medium space-y-2">
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 flex-wrap">
               <Link href="/developers" className="text-[#0f2861] hover:text-blue-700 font-bold hover:underline transition-all">
                 Portal para Desarrolladores (API)
+              </Link>
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              <Link href="/privacidad" className="text-[#0f2861] hover:text-blue-700 font-bold hover:underline transition-all">
+                Política de Privacidad
               </Link>
             </div>
             <p>

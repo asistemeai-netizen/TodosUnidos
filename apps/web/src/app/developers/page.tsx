@@ -69,6 +69,20 @@ export default function DevelopersPage() {
             </div>
           </div>
 
+          <h2 className="text-2xl font-bold text-[#0f2861] mb-4">Servidor MCP (IA)</h2>
+          <p className="text-slate-600 mb-4">
+            Todos Unidos ofrece un servidor <strong>Model Context Protocol (MCP)</strong> público. Si estás construyendo asistentes de inteligencia artificial (con Claude, Cursor, Windsurf, etc.), puedes conectar tu IA directamente a nuestra base de datos en tiempo real.
+          </p>
+          <div className="border border-slate-200 rounded-xl p-4 mb-8">
+            <h3 className="font-bold text-slate-800 mb-2">URL del Servidor (SSE)</h3>
+            <pre className="bg-slate-50 text-slate-600 p-3 rounded-lg text-sm overflow-x-auto border border-slate-100 mb-3">
+              <code>https://mcp.todosunidos.com/sse</code>
+            </pre>
+            <p className="text-slate-500 text-sm italic">
+              Nota: Este endpoint de producción permite conectar herramientas de IA de forma segura mediante Server-Sent Events.
+            </p>
+          </div>
+
           <h2 className="text-2xl font-bold text-[#0f2861] mb-4">Suscripción a Webhooks</h2>
           <p className="text-slate-600 mb-4">
             Puedes registrar una URL en nuestro sistema para recibir alertas automáticas (POST) cuando ocurran eventos importantes (ej. nuevo reporte, persona localizada).
