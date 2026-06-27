@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { db } from "@todosunidos/db";
+import PersonCard from "../components/PersonCard";
 import EarthquakeBanner from "../components/EarthquakeBanner";
 import AiNewsFeed from "../components/AiNewsFeed";
 import ReportPersonButton from "../components/ReportPersonButton";
