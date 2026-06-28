@@ -70,11 +70,25 @@ export default async function PersonasPage(props: PersonasPageProps) {
         <DirectorySearch />
 
         {/* Resultados e Info de Paginación */}
-        {query && (
-          <div className="mb-4 text-sm font-medium text-slate-500">
-            Se encontraron <span className="font-bold text-slate-800">{count}</span> resultados para "{query}"
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="text-sm font-medium text-slate-500">
+            {query ? (
+              <>Se encontraron <span className="font-bold text-slate-800">{count}</span> resultados para "{query}"</>
+            ) : (
+              <>Mostrando <span className="font-bold text-slate-800">{count}</span> personas en el directorio</>
+            )}
           </div>
-        )}
+          <a
+            href={`/api/export/personas${query ? `?q=${encodeURIComponent(query)}` : ''}`}
+            download
+            className="bg-white text-[#0f2861] border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-2 w-fit shrink-0"
+          >
+            <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Exportar CSV
+          </a>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
           {persons.map((person) => (
