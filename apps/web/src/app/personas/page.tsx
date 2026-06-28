@@ -31,6 +31,7 @@ export default async function PersonasPage(props: PersonasPageProps) {
     whereCondition = or(
       ilike(unifiedPersons.firstName, `%${query}%`),
       ilike(unifiedPersons.lastName, `%${query}%`),
+      ilike(sql`concat(${unifiedPersons.firstName}, ' ', ${unifiedPersons.lastName})`, `%${query}%`),
       ilike(unifiedPersons.lastSeenLocation, `%${query}%`),
       ilike(unifiedPersons.documentId, `%${query}%`)
     );
