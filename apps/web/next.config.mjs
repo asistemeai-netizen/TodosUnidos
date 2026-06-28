@@ -18,6 +18,11 @@ const nextConfig = {
         hostname: 'sismo911.com',
         pathname: '/api/familia/photo/**',
       },
+      {
+        protocol: 'https',
+        hostname: 's3.asisteme.ai',
+        pathname: '/todosunidos/**',
+      },
     ],
   },
 };

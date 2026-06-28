@@ -39,7 +39,8 @@ async function ensureBucket() {
 
 async function uploadPhoto(externalId: string, photoPath: string): Promise<string | null> {
   try {
-    const res = await fetch(`${API_BASE}${photoPath}`);
+    const fullUrl = photoPath.startsWith('http') ? photoPath : `${API_BASE}${photoPath}`;
+    const res = await fetch(fullUrl);
     if (!res.ok) return null;
     const buffer = Buffer.from(await res.arrayBuffer());
     const contentType = res.headers.get('content-type') || 'image/jpeg';
