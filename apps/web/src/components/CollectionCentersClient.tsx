@@ -27,6 +27,27 @@ export default function CollectionCentersClient({ centers }: { centers: Center[]
 
   const visibleCenters = filteredCenters.slice(0, visibleCount);
 
+  const downloadCSV = () => {
+    const headers = ['Nombre', 'Direccion', 'Ciudad', 'Estado', 'Items Necesitados', 'Telefono'];
+    const rows = centers.map(c => [
+      `"${(c.name || '').replace(/"/g, '""')}"`,
+      `"${(c.address || '').replace(/"/g, '""')}"`,
+      `"${(c.city || '').replace(/"/g, '""')}"`,
+      `"${(c.state || '').replace(/"/g, '""')}"`,
+      `"${(c.neededItems || '').replace(/"/g, '""')}"`,
+      `"${(c.contactPhone || '').replace(/"/g, '""')}"`
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' }); // BOM for UTF-8
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'centros_de_acopio.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       {/* Premium Control Panel */}
@@ -63,7 +84,7 @@ export default function CollectionCentersClient({ centers }: { centers: Center[]
             )}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-white/10">
+          <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="flex items-center gap-2 text-amber-300 font-bold tracking-widest text-sm uppercase shrink-0">
                 <svg className="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
@@ -83,6 +104,15 @@ export default function CollectionCentersClient({ centers }: { centers: Center[]
                 </span>
               </div>
             </div>
+            <button
+              onClick={downloadCSV}
+              className="bg-white text-[#0f2861] px-4 py-2 rounded-full text-sm font-bold shadow-sm hover:bg-slate-100 transition-colors flex items-center gap-2 shrink-0"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Exportar CSV
+            </button>
           </div>
         </div>
       </div>

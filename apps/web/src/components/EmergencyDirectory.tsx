@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 const emergencyData = [
@@ -100,11 +102,47 @@ const emergencyData = [
 ];
 
 export default function EmergencyDirectory() {
+  const downloadCSV = () => {
+    const headers = ['Categoria', 'Organismo', 'Numeros'];
+    const rows: string[][] = [];
+    
+    emergencyData.forEach(category => {
+      category.items.forEach(item => {
+        rows.push([
+          `"${category.category.replace(/"/g, '""')}"`,
+          `"${item.name.replace(/"/g, '""')}"`,
+          `"${item.numbers.join(' - ').replace(/"/g, '""')}"`
+        ]);
+      });
+    });
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'numeros_de_emergencia.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <section className="w-full max-w-7xl mx-auto mt-16 mb-24 px-4 sm:px-6">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Directorio de Emergencias</h2>
-        <p className="text-slate-500 mt-3 max-w-2xl mx-auto text-lg">Contactos oficiales y líneas de asistencia inmediata en caso de emergencia médica o de rescate.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 border-b border-slate-200 pb-8">
+        <div className="flex-1">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Directorio de Emergencias</h2>
+          <p className="text-slate-500 mt-3 max-w-2xl text-lg">Contactos oficiales y líneas de asistencia inmediata en caso de emergencia médica o de rescate.</p>
+        </div>
+        <button
+          onClick={downloadCSV}
+          className="bg-white text-slate-700 border border-slate-300 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors flex items-center gap-2 shrink-0 self-start md:self-end"
+        >
+          <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Exportar Directorio
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
