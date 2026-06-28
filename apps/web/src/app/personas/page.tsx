@@ -14,17 +14,17 @@ interface PersonasPageProps {
   }>;
 }
 
-export default async function PersonasPage({ searchParams }: PersonasPageProps) {
-  const resolvedParams = await searchParams;
+export default async function PersonasPage(props: PersonasPageProps) {
+  const searchParams = await props.searchParams;
   
   // Configuración de Paginación
   const limit = 24;
-  const rawPage = resolvedParams?.page ? parseInt(resolvedParams.page, 10) : 1;
+  const rawPage = searchParams?.page ? parseInt(searchParams.page, 10) : 1;
   const currentPage = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
   const offset = (currentPage - 1) * limit;
 
   // Filtro de Búsqueda
-  const query = resolvedParams?.q?.trim() || "";
+  const query = searchParams?.q?.trim() || "";
   
   let whereCondition = undefined;
   if (query) {
