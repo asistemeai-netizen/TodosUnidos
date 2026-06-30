@@ -21,28 +21,8 @@ export async function GET(request: Request) {
       );
     }
 
-    // Obtenemos todos los registros (sin límite, pero solo los campos que importan para exportar)
-    const persons = await db.query.unifiedPersons.findMany({
-      where: whereCondition,
-      orderBy: [desc(unifiedPersons.createdAt)],
-      columns: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        documentId: true,
-        age: true,
-        gender: true,
-        status: true,
-        lastSeenLocation: true,
-        lastSeenDate: true,
-        reporterContact: true,
-        createdAt: true,
-      }
-    });
-
     const headers = ['ID', 'Nombres', 'Apellidos', 'Cedula', 'Edad', 'Genero', 'Estatus', 'Ultima Ubicacion', 'Fecha Ultima Vez', 'Contacto Reportante', 'Fecha Registro'];
     
-    // Función auxiliar para escapar comillas y comas en CSV
     const escapeCsv = (str: string | number | null | undefined | Date) => {
       if (str === null || str === undefined) return '""';
       if (str instanceof Date) {
@@ -52,26 +32,68 @@ export async function GET(request: Request) {
       return `"${stringified.replace(/"/g, '""')}"`;
     };
 
-    const rows = persons.map(p => [
-      escapeCsv(p.id),
-      escapeCsv(p.firstName),
-      escapeCsv(p.lastName),
-      escapeCsv(p.documentId),
-      escapeCsv(p.age),
-      escapeCsv(p.gender),
-      escapeCsv(p.status),
-      escapeCsv(p.lastSeenLocation),
-      escapeCsv(p.lastSeenDate),
-      escapeCsv(p.reporterContact),
-      escapeCsv(p.createdAt),
-    ]);
+    // Crear un stream para no colapsar la memoria con 70,000 registros
+    const stream = new ReadableStream({
+      async start(controller) {
+        const bom = '\uFEFF';
+        controller.enqueue(bom + headers.join(',') + '\n');
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        let offset = 0;
+        const limit = 5000;
+        let hasMore = true;
 
-    // Añadir BOM (Byte Order Mark) para que Excel lo lea bien con UTF-8
-    const bom = '\uFEFF';
-    
-    return new NextResponse(bom + csvContent, {
+        try {
+          while (hasMore) {
+            // Usamos select normal (es más ligero en memoria que db.query)
+            const chunk = await db.select({
+              id: unifiedPersons.id,
+              firstName: unifiedPersons.firstName,
+              lastName: unifiedPersons.lastName,
+              documentId: unifiedPersons.documentId,
+              age: unifiedPersons.age,
+              gender: unifiedPersons.gender,
+              status: unifiedPersons.status,
+              lastSeenLocation: unifiedPersons.lastSeenLocation,
+              lastSeenDate: unifiedPersons.lastSeenDate,
+              reporterContact: unifiedPersons.reporterContact,
+              createdAt: unifiedPersons.createdAt,
+            })
+            .from(unifiedPersons)
+            .where(whereCondition)
+            .orderBy(desc(unifiedPersons.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+            if (chunk.length === 0) {
+              hasMore = false;
+              break;
+            }
+
+            const rows = chunk.map(p => [
+              escapeCsv(p.id),
+              escapeCsv(p.firstName),
+              escapeCsv(p.lastName),
+              escapeCsv(p.documentId),
+              escapeCsv(p.age),
+              escapeCsv(p.gender),
+              escapeCsv(p.status),
+              escapeCsv(p.lastSeenLocation),
+              escapeCsv(p.lastSeenDate),
+              escapeCsv(p.reporterContact),
+              escapeCsv(p.createdAt),
+            ].join(',')).join('\n') + '\n';
+
+            controller.enqueue(rows);
+            offset += limit;
+          }
+          controller.close();
+        } catch (err) {
+          controller.error(err);
+        }
+      }
+    });
+
+    return new NextResponse(stream, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',

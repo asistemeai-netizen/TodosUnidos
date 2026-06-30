@@ -3,8 +3,6 @@
 import { db, personTips, newsSummaries, collectionCenters, youtubeVideos, desc, eq, and } from "@todosunidos/db";
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 export async function submitPersonTipAction(formData: FormData) {
   try {
     const unifiedPersonId = formData.get("unifiedPersonId")?.toString();
@@ -13,6 +11,8 @@ export async function submitPersonTipAction(formData: FormData) {
     if (!unifiedPersonId || !informationText) {
       return { success: false, error: "Faltan datos obligatorios" };
     }
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     // AI Moderation Step
     const prompt = `

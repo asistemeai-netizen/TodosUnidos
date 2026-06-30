@@ -25,11 +25,34 @@ export default function PersonCard({ person }: PersonCardProps) {
   // Iniciales si no hay foto
   const initials = `${person.firstName.charAt(0)}${person.lastName.charAt(0)}`.toUpperCase();
   
-  // Color del status (Sin contacto = Rojo, Localizado = Verde)
-  const isLocated = person.status.toLowerCase().includes('localizado');
-  const statusColor = isLocated ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50';
-  const statusDot = isLocated ? 'bg-green-600' : 'bg-red-600';
-  const statusLabel = isLocated ? 'Localizado' : 'Sin contacto';
+  let statusLabel = person.status;
+  let statusColor = 'text-slate-600 bg-slate-50';
+  let statusDot = 'bg-slate-600';
+
+  switch (person.status.toLowerCase()) {
+    case 'desaparecido':
+      statusLabel = 'Desaparecido';
+      statusColor = 'text-red-700 bg-red-50 border border-red-200';
+      statusDot = 'bg-red-600';
+      break;
+    case 'localizado_sano':
+      statusLabel = 'Localizado';
+      statusColor = 'text-green-700 bg-green-50 border border-green-200';
+      statusDot = 'bg-green-600';
+      break;
+    case 'fallecido':
+      statusLabel = 'Fallecido';
+      statusColor = 'text-slate-800 bg-slate-200 border border-slate-300';
+      statusDot = 'bg-slate-800';
+      break;
+    case 'verificando':
+      statusLabel = 'Verificando';
+      statusColor = 'text-amber-700 bg-amber-50 border border-amber-200';
+      statusDot = 'bg-amber-500';
+      break;
+    default:
+      statusLabel = person.status.charAt(0).toUpperCase() + person.status.slice(1);
+  }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReportingInfo, setIsReportingInfo] = useState(false);
@@ -122,9 +145,14 @@ export default function PersonCard({ person }: PersonCardProps) {
             {person.firstName} {person.lastName}
           </h3>
           
-          <p className="text-slate-500 text-xs truncate mb-2">
-            {person.age ? `${person.age} años` : 'Edad no indicada'}
-          </p>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${statusColor}`}>
+              {statusLabel}
+            </span>
+            <p className="text-slate-500 text-xs truncate">
+              {person.age ? `${person.age} años` : 'Edad n/a'}
+            </p>
+          </div>
           
           <div className="flex flex-col gap-1 text-slate-500 text-xs">
             <div className="flex items-center gap-1.5">

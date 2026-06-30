@@ -87,7 +87,7 @@ function clearProgress() {
 }
 
 async function fetchPage(page: number): Promise<{ cases: any[]; total: number; pages: number }> {
-  const url = `${API_BASE}/api/persons/cases?sort=triage&page=${page}&limit=${PAGE_SIZE}`;
+  const url = `${API_BASE}/api/persons/cases?page=${page}&limit=${PAGE_SIZE}`;
   let attempt = 0;
   while (true) {
     attempt++;
