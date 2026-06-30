@@ -3,8 +3,11 @@ const BASE_URL = 'https://desaparecidos-terremoto-api.theempire.tech/api/v1';
 function getHeaders() {
   // Intentar leer la variable de entorno. Si el servidor de Next.js lleva días corriendo
   // y la variable se agregó recién, process.env no la tendrá. Usamos un fallback seguro.
-  const apiKey = process.env.API_DESSAPARECIDOS || process.env.API_DESAPARECIDOS || "rec_live_h84lt2XNM03FhxVXa41nYt8bHcuJJwePdSnxMZLhkXc";
+  let apiKey = process.env.API_DESSAPARECIDOS || process.env.API_DESAPARECIDOS || "rec_live_h84lt2XNM03FhxVXa41nYt8bHcuJJwePdSnxMZLhkXc";
   
+  // SANITIZACIÓN: Limpiar espacios invisibles o saltos de línea (muy común al copiar/pegar en paneles)
+  apiKey = apiKey.trim();
+
   console.log('--- DEBUG THEEMPIRE API ---');
   console.log('API Key en uso:', apiKey ? '***' + apiKey.slice(-5) : 'NINGUNA');
   
