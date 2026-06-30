@@ -1,17 +1,35 @@
 import { checkAuth, changePersonStatusAction, deletePersonAction, deleteTipAction } from '@/actions/adminActions';
 import { db, unifiedPersons } from '@todosunidos/db';
-import { desc, sql } from 'drizzle-orm';
+import { desc, sql, or, ilike, and, eq } from 'drizzle-orm';
 import React from 'react';
 import Link from 'next/link';
 
-export default async function AdminPersonasPage({ searchParams }: { searchParams: { page?: string } }) {
+export default async function AdminPersonasPage({ searchParams }: { searchParams: { page?: string, q?: string, status?: string } }) {
   await checkAuth();
 
   const resolvedSearchParams = await searchParams;
   const page = parseInt(resolvedSearchParams?.page || '1');
+  const q = resolvedSearchParams?.q || '';
+  const statusFilter = resolvedSearchParams?.status || '';
   const pageSize = 50;
 
+  const conditions = [];
+  if (q) {
+    conditions.push(or(
+      ilike(unifiedPersons.firstName, `%${q}%`),
+      ilike(unifiedPersons.lastName, `%${q}%`),
+      ilike(unifiedPersons.documentId, `%${q}%`),
+      ilike(sql`concat(${unifiedPersons.firstName}, ' ', ${unifiedPersons.lastName})`, `%${q}%`)
+    ));
+  }
+  if (statusFilter) {
+    conditions.push(eq(unifiedPersons.status, statusFilter));
+  }
+  
+  const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+
   const persons = await db.query.unifiedPersons.findMany({
+    where: whereCondition,
     orderBy: [desc(unifiedPersons.createdAt)],
     limit: pageSize,
     offset: (page - 1) * pageSize,
@@ -20,16 +38,51 @@ export default async function AdminPersonasPage({ searchParams }: { searchParams
     }
   });
 
-  const totalQuery = await db.select({ count: sql<number>`count(*)` }).from(unifiedPersons);
+  const totalQuery = await db.select({ count: sql<number>`count(*)` }).from(unifiedPersons).where(whereCondition);
   const total = Number(totalQuery[0].count);
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.ceil(total / pageSize) || 1;
+
+  // Preservar query params para la paginación
+  const currentParams = new URLSearchParams();
+  if (q) currentParams.set('q', q);
+  if (statusFilter) currentParams.set('status', statusFilter);
+  const baseQueryStr = currentParams.toString() ? `&${currentParams.toString()}` : '';
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-black text-[#0f2861] mb-2">Directorio de Personas</h1>
           <p className="text-slate-500">Gestión de desaparecidos, cambios de estatus y revisión de aportes.</p>
+        </div>
+        
+        <div className="w-full lg:w-auto">
+          <form method="GET" action="/admin/personas" className="flex flex-col sm:flex-row gap-2">
+            <input 
+              type="text" 
+              name="q" 
+              placeholder="Buscar por nombre o cédula..." 
+              defaultValue={q}
+              className="px-4 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-[#0f2861] outline-none min-w-[200px]"
+            />
+            <select name="status" defaultValue={statusFilter} className="px-4 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-[#0f2861] outline-none bg-white">
+              <option value="">Todos los estatus</option>
+              <option value="desaparecido">Desaparecidos</option>
+              <option value="verificando">Verificando</option>
+              <option value="localizado_sano">Localizados</option>
+              <option value="fallecido">Fallecidos</option>
+            </select>
+            <div className="flex gap-2">
+              <button type="submit" className="bg-[#0f2861] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-800 transition-colors whitespace-nowrap">
+                Filtrar
+              </button>
+              {(q || statusFilter) && (
+                <Link href="/admin/personas" className="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-slate-200 transition-colors flex items-center whitespace-nowrap">
+                  Limpiar
+                </Link>
+              )}
+            </div>
+          </form>
         </div>
       </div>
 
@@ -153,7 +206,7 @@ export default async function AdminPersonasPage({ searchParams }: { searchParams
             <div className="flex items-center gap-2">
               {page > 1 ? (
                 <Link 
-                  href={`/admin/personas?page=${page - 1}`}
+                  href={`/admin/personas?page=${page - 1}${baseQueryStr}`}
                   className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
                 >
                   Anterior
@@ -166,7 +219,7 @@ export default async function AdminPersonasPage({ searchParams }: { searchParams
               
               {page < totalPages ? (
                 <Link 
-                  href={`/admin/personas?page=${page + 1}`}
+                  href={`/admin/personas?page=${page + 1}${baseQueryStr}`}
                   className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
                 >
                   Siguiente
