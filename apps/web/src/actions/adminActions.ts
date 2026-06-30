@@ -165,3 +165,46 @@ export async function deleteYoutubeChannelAction(id: string) {
   
   revalidatePath('/admin/youtube');
 }
+
+// ==========================================
+// RESOLUCION DE DUPLICADOS (ADMIN)
+// ==========================================
+
+export async function resolveDuplicateAction(duplicateId: string, keepPersonId: string, discardPersonId: string) {
+  await checkAuth();
+
+  // 1. Mover todos los tips (aportes) del discard al keep
+  await db.update(personTips)
+    .set({ unifiedPersonId: keepPersonId })
+    .where(eq(personTips.unifiedPersonId, discardPersonId));
+
+  // 2. Marcar este duplicado como resuelto (o eliminarlo)
+  await db.update(potentialDuplicates)
+    .set({ status: 'aprobado' })
+    .where(eq(potentialDuplicates.id, duplicateId));
+
+  // 3. Eliminar cualquier otro potentialDuplicate que referencie al discard (para no dejar huérfanos)
+  // Nota: Drizzle no soporta OR directamente en el delete de forma simple sin importar `or`, pero
+  // podemos hacer dos deletes.
+  await db.delete(potentialDuplicates)
+    .where(eq(potentialDuplicates.unifiedPersonId, discardPersonId));
+  await db.delete(potentialDuplicates)
+    .where(eq(potentialDuplicates.duplicatePersonId, discardPersonId));
+
+  // 4. Borrar a la persona descartada de unifiedPersons
+  await db.delete(unifiedPersons)
+    .where(eq(unifiedPersons.id, discardPersonId));
+
+  revalidatePath('/admin/duplicados');
+  revalidatePath('/admin/personas');
+}
+
+export async function rejectDuplicateAction(duplicateId: string) {
+  await checkAuth();
+
+  await db.update(potentialDuplicates)
+    .set({ status: 'rechazado' })
+    .where(eq(potentialDuplicates.id, duplicateId));
+
+  revalidatePath('/admin/duplicados');
+}
