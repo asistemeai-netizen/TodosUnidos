@@ -1,17 +1,28 @@
 import { checkAuth, changePersonStatusAction, deletePersonAction, deleteTipAction } from '@/actions/adminActions';
 import { db, unifiedPersons } from '@todosunidos/db';
-import { desc } from 'drizzle-orm';
+import { desc, sql } from 'drizzle-orm';
 import React from 'react';
+import Link from 'next/link';
 
-export default async function AdminPersonasPage() {
+export default async function AdminPersonasPage({ searchParams }: { searchParams: { page?: string } }) {
   await checkAuth();
+
+  const resolvedSearchParams = await searchParams;
+  const page = parseInt(resolvedSearchParams?.page || '1');
+  const pageSize = 50;
 
   const persons = await db.query.unifiedPersons.findMany({
     orderBy: [desc(unifiedPersons.createdAt)],
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
     with: {
       tips: true
     }
   });
+
+  const totalQuery = await db.select({ count: sql<number>`count(*)` }).from(unifiedPersons);
+  const total = Number(totalQuery[0].count);
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div>
@@ -132,6 +143,42 @@ export default async function AdminPersonasPage() {
             </tbody>
           </table>
         </div>
+        
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex items-center justify-between">
+            <div className="text-sm text-slate-500">
+              Mostrando página <span className="font-bold text-slate-800">{page}</span> de <span className="font-bold text-slate-800">{totalPages}</span> (Total: {total})
+            </div>
+            <div className="flex items-center gap-2">
+              {page > 1 ? (
+                <Link 
+                  href={`/admin/personas?page=${page - 1}`}
+                  className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                >
+                  Anterior
+                </Link>
+              ) : (
+                <button disabled className="bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2 rounded-lg text-sm font-bold cursor-not-allowed">
+                  Anterior
+                </button>
+              )}
+              
+              {page < totalPages ? (
+                <Link 
+                  href={`/admin/personas?page=${page + 1}`}
+                  className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                >
+                  Siguiente
+                </Link>
+              ) : (
+                <button disabled className="bg-slate-100 border border-slate-200 text-slate-400 px-4 py-2 rounded-lg text-sm font-bold cursor-not-allowed">
+                  Siguiente
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
