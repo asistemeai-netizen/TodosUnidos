@@ -20,6 +20,9 @@ export default function AdminLayout({
           <Link href="/admin/personas" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
             Directorio Personas
           </Link>
+          <Link href="/listas-hospitales" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium text-[#f1b218]">
+            Listas de Hospitales
+          </Link>
           <Link href="/admin/acopio" className="px-4 py-3 rounded-xl hover:bg-blue-800 transition-colors font-medium">
             Centros de Acopio
           </Link>

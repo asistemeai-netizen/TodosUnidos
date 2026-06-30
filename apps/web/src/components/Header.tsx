@@ -32,6 +32,7 @@ export default function Header() {
             <Link href="/noticias" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Noticias (IA)</Link>
             <Link href="/acopio" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Acopio</Link>
             <Link href="/emergencias" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Emergencias</Link>
+            <Link href="/listas-hospitales" className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors">Hospitales</Link>
             <Link href="/developers" className="text-sm font-bold text-[#0f2861] bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition-colors">Developers</Link>
             
             <a 
@@ -70,6 +71,7 @@ export default function Header() {
             <Link href="/noticias" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors px-2">Noticias (IA)</Link>
             <Link href="/acopio" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors px-2">Acopio</Link>
             <Link href="/emergencias" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors px-2">Emergencias</Link>
+            <Link href="/listas-hospitales" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold text-slate-600 hover:text-[#0f2861] transition-colors px-2">Hospitales</Link>
             <Link href="/developers" onClick={() => setIsMenuOpen(false)} className="text-sm font-bold text-[#0f2861] bg-blue-50 px-3 py-2 rounded-lg hover:bg-blue-100 transition-colors w-fit">Developers</Link>
             
             <a 
