@@ -10,6 +10,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://api:3001/api/v1}
+      - API_DESSAPARECIDOS=${API_DESSAPARECIDOS}
       - NODE_ENV=production
     networks:
       - default
@@ -38,6 +39,7 @@ services:
       - SEARXNG_USER=${SEARXNG_USER}
       - SEARXNG_PASSWORD=${SEARXNG_PASSWORD}
       - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - API_DESSAPARECIDOS=${API_DESSAPARECIDOS}
       - NODE_ENV=production
     networks:
       - default
